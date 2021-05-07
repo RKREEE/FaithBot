@@ -8,14 +8,32 @@ intents=discord.Intents.all()
 bot = commands.Bot(command_prefix='=', intents=intents)
 token = open('token.txt', "r").readline()
 
-startTime = None
+startTime = time.time()
 
 @bot.event
 async def on_ready():
-    startTime = time.time()
     game = discord.Game("=help")
     await bot.change_presence(activity=game, status=discord.Status.idle)
     print(f'logged in as {bot.user}')
+
+@bot.command()
+async def info(ctx):
+    seconds = time.time() - startTime
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    d, h = divmod(h, 24)
+    w, d = divmod(d, 7)
+    uptime_str = f'{int(w)}w : {int(d)}d : {int(h)}h : {int(m)}m : {int(s)}s'
+    
+    e = discord.Embed(title="Information about me",
+                      url="https://github.com/RKREEE/FaithBot",
+                      colour=discord.Colour(0xaa7bff))
+    e.set_thumbnail(url=bot.user.avatar_url_as(format="png"))
+    e.add_field(name="Info", value=f"Name: {bot.user}\nID: {bot.user.id}", inline=False)
+    e.add_field(name="Uptime", value=uptime_str, inline=True)
+    e.add_field(name="Guild Count", value=f"{len(bot.guilds)} guilds with {len(bot.users)} users", inline=True)
+               
+    await ctx.send(embed=e)
     
 @bot.command()
 async def findseed(ctx):
