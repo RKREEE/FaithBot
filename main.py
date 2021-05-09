@@ -46,7 +46,7 @@ async def findseed(ctx):
     with open('findseedstats.json', 'r') as f:
         data = json.load(f)
         
-    if str(ctx.guild.id) not in data or data[str(ctx.guild.id)]["best"] <= eyes:
+    if str(ctx.guild.id) not in data or data[str(ctx.guild.id)]["best"] < eyes:
         data[str(ctx.guild.id)] = {"best": eyes, "user": str(ctx.author)}
     
     with open("findseedstats.json", 'w') as f:
