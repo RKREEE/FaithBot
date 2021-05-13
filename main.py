@@ -17,6 +17,10 @@ async def on_ready():
     print(f'logged in as {bot.user}')
 
 @bot.command()
+async def ping(ctx):
+    await ctx.send(f"{round(bot.latency * 1000)}ms")
+    
+@bot.command()
 async def info(ctx):
     seconds = time.time() - startTime
     m, s = divmod(seconds, 60)
