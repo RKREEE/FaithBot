@@ -51,7 +51,7 @@ async def findseed(ctx):
         data = json.load(f)
         
     if str(ctx.guild.id) not in data or data[str(ctx.guild.id)]["best"] < eyes:
-        data[str(ctx.guild.id)] = {"best": eyes, "user": str(ctx.author)}
+        data[str(ctx.guild.id)] = {"best": eyes, "user": str(ctx.author.id)}
     
     with open("findseedstats.json", 'w') as f:
         json.dump(data, f, indent=4)
@@ -65,7 +65,7 @@ async def bestseed(ctx):
         await ctx.send(f"**{ctx.guild.name}** doesnt have a seed history")
     else:
         num = data[str(ctx.guild.id)]["best"]
-        member = data[str(ctx.guild.id)]["user"]
-        await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by **{member}**')
+        member = bot.get_user(data[str(ctx.guild.id)]["user"])
+        await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by {member.mention} (**{member.display_name}#{member.discriminator}**)')
 
 bot.run(token)
