@@ -66,6 +66,6 @@ async def bestseed(ctx):
     else:
         num = data[str(ctx.guild.id)]["best"]
         member = bot.get_user(data[str(ctx.guild.id)]["user"])
-        await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by {member.mention} (**{member.display_name}#{member.discriminator}**)')
+        await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by **{member.display_name}#{member.discriminator}**')
 
 bot.run(token)
