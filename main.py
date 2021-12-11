@@ -7,15 +7,37 @@ import json
 intents=discord.Intents.all()
 bot = commands.Bot(command_prefix='=', intents=intents)
 token = open('token.txt', "r").readline()
-
 startTime = time.time()
 
+def isMod(ctx):
+    try:
+        return ctx.author.guild_permissions.manage_channels
+    except AttributeError:
+        return False
+    
 @bot.event
 async def on_ready():
     game = discord.Game("=help")
     await bot.change_presence(activity=game, status=discord.Status.idle)
     print(f'logged in as {bot.user}')
 
+@bot.event
+async def on_message(message):
+    if message.author.bot or not message.guild:
+        return
+
+    with open('phrases.json', 'r') as f:
+        data = json.load(f)
+
+    if str(message.guild.id) not in data:
+        pass
+    else:
+        for phrase in data[str(message.guild.id)]:
+            if phrase in message.content.lower():
+                await message.channel.send(data[str(message.guild.id)][phrase])
+
+    await bot.process_commands(message)
+    
 @bot.command()
 async def ping(ctx):
     await ctx.send(f"{round(bot.latency * 1000)}ms")
@@ -68,4 +90,46 @@ async def bestseed(ctx):
         member = bot.get_user(data[str(ctx.guild.id)]["user"])
         await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by **{member.display_name}#{member.discriminator}**')
 
+@bot.command()
+async def addphrase(ctx, phrase :str = None, reaction :str = None):
+    if isMod(ctx) != False:
+        with open('phrases.json', 'r') as f:
+            data = json.load(f)
+
+        if str(ctx.guild.id) not in data:
+            data[str(ctx.guild.id)] = {}
+        if phrase != None and reaction != None:
+            data[str(ctx.guild.id)][phrase] = reaction
+        elif phrase != None and reaction == None:
+            await ctx.send('what do you want me to reply with?')
+            return
+        elif phrase == None and reaction == None:
+            await ctx.send(f'hint:\n```=addphrase \"the phrase\" \"the reply\"```')
+            return
+
+        with open('phrases.json', 'w') as f:
+            json.dump(data, f, indent=4)
+
+        await ctx.send(f'{phrase} has been added as a phrase for this server')
+    else:
+        await ctx.send(f'you dont have permission to use this command')
+
+@bot.command()
+async def removephrase(ctx, phrase: str):
+    if isMod(ctx) != False:
+        with open('phrases.json', 'r') as f:
+            data = json.load(f)
+
+        try:
+            data[str(ctx.guild.id)].pop(phrase)
+        except KeyError:
+            await ctx.send(f'i cant find `{phrase}`, are you sure you spelt it correctly?')
+            return
+
+        with open('phrases.json', 'w') as f:
+            json.dump(data, f, indent=4)
+
+        await ctx.send(f'{phrase} has been removed from this server')
+    else: 
+        await ctx.send('you dont have permission to use this command')
 bot.run(token)
