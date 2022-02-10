@@ -5,7 +5,9 @@ import time
 import json
 
 intents=discord.Intents.all()
-bot = commands.Bot(command_prefix='=', intents=intents)
+allowed_mentions=discord.AllowedMentions(everyone=False, users=True, roles=False)
+
+bot = commands.Bot(command_prefix='=', intents=intents, allowed_mentions=allowed_mentions)
 token = open('token.txt', "r").readline()
 startTime = time.time()
 
