@@ -1,6 +1,6 @@
 Create a file called `token.txt` and put your bot token in it
 
-Create a file called `findseedstats.json` and a file called `phrases.json` and put `{}` inside of both of them
+Create 3 files called `findseedstats.json`, `phrases.json` and  `findseedUsers.json` put `{}` inside of all of them
 
 Install dependencies with `python -m pip install -r requirements.txt`
 
