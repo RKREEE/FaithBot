@@ -79,6 +79,19 @@ async def findseed(ctx):
     
     with open("findseedstats.json", 'w') as f:
         json.dump(data, f, indent=4)
+    
+    with open("findseedUsers.json", "r") as f:
+        data = json.load(f)
+        
+    if str(ctx.author.id) not in data:
+        data[str(ctx.author.id)] = {f"{str(eyes)} eyes": "1"}
+    elif f"{str(eyes)} eyes" not in data[str(ctx.author.id)]:
+        data[str(ctx.author.id)][f"{str(eyes)} eyes"] = "1"
+    else:
+        data[str(ctx.author.id)][f"{str(eyes)} eyes"] = str(int(data[str(ctx.author.id)][f"{str(eyes)} eyes"]) + 1)
+        
+    with open("findseedUsers.json", "w") as f:
+        json.dump(data, f, indent=4)
         
 @bot.command()
 async def bestseed(ctx):
@@ -91,6 +104,24 @@ async def bestseed(ctx):
         num = data[str(ctx.guild.id)]["best"]
         member = bot.get_user(data[str(ctx.guild.id)]["user"])
         await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by **{member.display_name}#{member.discriminator}**')
+
+@bot.command()
+async def findseedstats(ctx, user: discord.User = None):
+    if user == None: 
+        user = ctx.author
+    user = bot.get_user(user.id)
+    with open('findseedUsers.json', 'r') as f:
+        data = json.load(f)
+        
+    if str(user.id) not in data:
+        await ctx.send(f"{user.display_name}#{user.discriminator} hasnt used findseed yet")
+    else:
+        e = discord.Embed(title=f"{user.display_name}\'s findseed stats",
+                          colour=discord.Colour(0xaa7bff))
+        for x in data[str(user.id)]:
+            e.add_field(name=f"{str(x)}:", value=f"{data[str(user.id)][str(x)]}", inline=False)
+
+        await ctx.send(embed=e)
 
 @bot.command()
 async def addphrase(ctx, phrase :str = None, reaction :str = None):
