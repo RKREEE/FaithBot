@@ -102,7 +102,7 @@ async def bestseed(ctx):
         await ctx.send(f"**{ctx.guild.name}** doesnt have a seed history")
     else:
         num = data[str(ctx.guild.id)]["best"]
-        member = bot.get_user(data[str(ctx.guild.id)]["user"])
+        member = bot.get_user(int(data[str(ctx.guild.id)]["user"]))
         await ctx.send(f'**{ctx.guild.name}** has a best seed of {num} eyes, set by **{member.display_name}#{member.discriminator}**')
 
 @bot.command()
