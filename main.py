@@ -110,17 +110,28 @@ async def findseedstats(ctx, user: discord.User = None):
     if user == None: 
         user = ctx.author
     user = bot.get_user(user.id)
+    
     with open('findseedUsers.json', 'r') as f:
         data = json.load(f)
         
     if str(user.id) not in data:
         await ctx.send(f"{user.display_name}#{user.discriminator} hasnt used findseed yet")
     else:
-        e = discord.Embed(title=f"{user.display_name}\'s findseed stats",
-                          colour=discord.Colour(0xaa7bff))
+        total = 0
+        for i in range(13):
+            try:
+                total += int(data[str(user.id)][f'{i} eyes'])
+            except KeyError:
+                continue
+                
+        e = discord.Embed(title=f"{user.display_name}\'s findseed stats from {total:,} seeds", colour=discord.Colour(0xaa7bff))
+        
         for x in data[str(user.id)]:
-            e.add_field(name=f"{str(x)}:", value=f"{data[str(user.id)][str(x)]}", inline=False)
-
+            try:
+                e.add_field(name=f"{str(x)}:", value=f"{int(data[str(user.id)][f'{x} eyes']):,}", inline=True)
+            except KeyError:
+                e.add_field(name=f"{str(x)} eyes:", value="0", inline=True)
+                                                    
         await ctx.send(embed=e)
 
 @bot.command()
