@@ -40,6 +40,11 @@ async def on_message(message):
 
     await bot.process_commands(message)
     
+@bot.event
+async def on_command_error(ctx, exception):
+	error = str(exception).lower().replace("\"","`")
+	await ctx.send(f'{error}.\npro tip: ```you can use =help to view a list of commands or get extra information.```')
+    
 @bot.command()
 async def ping(ctx):
     await ctx.send(f"{round(bot.latency * 1000)}ms")
