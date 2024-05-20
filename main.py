@@ -11,6 +11,7 @@ bot = commands.Bot(command_prefix="=", intents=intents, allowed_mentions=allowed
 
 @bot.event
 async def on_ready():
+    await bot.is_owner(bot.user) # load owner ids
     await bot.change_presence(activity=discord.Game("/help"), status=discord.Status.idle)
     print(f"logged in as {bot.user}")
     try: 
@@ -40,12 +41,22 @@ async def info(interaction: discord.Interaction):
     d, h = divmod(h, 24)
     w, d = divmod(d, 7)
     uptime_str = f"{int(w)}w : {int(d)}d : {int(h)}h : {int(m)}m : {int(s)}s"
-
+    
+    owners = ""
+    if bot.owner_id:
+        user = bot.get_user(bot.owner_id)
+        owners += "Owner: " + user.mention
+    elif bot.owner_ids:
+        owners += "Owners: "
+        for id in bot.owner_ids:
+            user = bot.get_user(bot.owner_ids)
+            owners += user.mention + " "
+            
     e = discord.Embed(title="Information about me",
                       url="https://github.com/RKREEE/FaithBot",
                       colour=discord.Colour(0xaa7bff))
     e.set_thumbnail(url=bot.user.display_avatar)
-    e.add_field(name="Info", value=f"Name: {bot.user}\nID: {bot.user.id}", inline=False)
+    e.add_field(name="Info", value=f"Name: {bot.user}\nID: {bot.user.id}\n{owners}", inline=False)
     e.add_field(name="Uptime", value=uptime_str, inline=True)
     e.add_field(name="Guild Count", value=f"{len(bot.guilds)} guilds with {len(bot.users)} users", inline=True)
 
