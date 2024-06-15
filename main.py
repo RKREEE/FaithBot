@@ -349,7 +349,7 @@ async def slots(interaction: discord.Interaction, bet: int = 1):
         balance = 1000 - bet
 
     if balance < 0:
-        await interaction.response.send_message("u dont have this sorry money")
+        await interaction.response.send_message("u dont have this money sorry")
         return
 
     choices = []
