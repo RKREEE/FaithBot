@@ -9,6 +9,9 @@ startTime = time.time()
 
 bot = commands.Bot(command_prefix="=", intents=intents, allowed_mentions=allowed_mentions, help_command=None)
 
+icons = ["🍒", "🍉", "🍇", "💎", "🔔", "⭐", "👑", "💵", "🍀"]
+weights = [0.3, 0.20, 0.18, 0.10, 0.09, 0.05, 0.04, 0.03, 0.01]
+
 @bot.event
 async def on_ready():
     await bot.is_owner(bot.user) # load owner ids
@@ -139,6 +142,19 @@ async def findseed(interaction: discord.Interaction):
 
     with open("data/findseedstreak.json", "w") as f:
         json.dump(data, f, indent=4)
+
+    # update balance
+    with open("data/balance.json", "r") as f:
+    	data = json.load(f)
+    
+    try: 
+        data[user_id] += eyes
+    except KeyError:
+        data[user_id] = 1000 + eyes
+    
+    with open("data/balance.json", "w") as f:
+        json.dump(data, f, indent=4)
+
 
 @bot.tree.command(name="bestseed", description="show the highest number of eyes from a findseed in this server")
 async def bestseed(interaction: discord.Interaction):
@@ -276,5 +292,107 @@ async def lichess(interaction: discord.Interaction, username: str = "faith_bot")
     e.add_field(name="best ratings", value=best_ratings)
 
     await interaction.response.send_message(embed=e)
+
+@bot.tree.command(name="richest", description="show top rich people")
+async def richest(interaction: discord.Interaction):
+    with open("data/balance.json", "r") as f:
+        data = json.load(f)
+    
+    
+    output = ""
+    index = 1
+    n = min(len(data), 10)
+    for id, bal in sorted(data.items(), key=lambda item: item[1], reverse=True)[:n]:
+        user = bot.get_user(int(id))
+
+        if user.discriminator != "0":
+            name = f"**{user.name}#{user.discriminator}**"
+        else:
+            name = f"**{user.name}**"
+
+        output += f"{index}. {name}: {bal}\n"
+        index += 1
+
+    e = discord.Embed(title=f"Top {n} Balances",
+            colour=discord.Colour(0xaa7bff),
+            description=output)
+
+    await interaction.response.send_message(embed=e)
+
+@bot.tree.command(name="balance", description="show ur balance!!")
+async def bal(interaction: discord.Interaction):
+    with open("data/balance.json", "r") as f:
+        data = json.load(f)
+    try: 
+        balance = data[str(interaction.user.id)]
+    except KeyError:
+        balance = 1000
+        data[str(interaction.user.id)] = balance
+
+        with open("data/balance.json", "w") as f:
+            json.dump(data, f, indent=4)
+
+    await interaction.response.send_message(f"your balance is {balance}")
+@bot.tree.command(name="slots", description="play slot machine omg")
+async def slots(interaction: discord.Interaction, bet: int = 1):
+    if bet <= 0:
+        interaction.response.send_message("you cant just play for fun, bet something!")
+        return
+    
+    user_id = interaction.user.id
+    with open("data/balance.json", "r") as f:
+        data = json.load(f)
+    
+    try:
+        balance = data[str(user_id)] - bet
+    except KeyError:
+        balance = 1000 - bet
+
+    if balance < 0:
+        interaction.resonse.send_message("u dont have this sorry money")
+        return
+
+    choices = []
+    for i in range(3):
+        choice = numpy.random.choice(icons, 1, p=weights, replace=False)
+        choices.append(choice[0])
+        
+
+    odds = 0
+    if choices[0] == choices[1] and choices[1] == choices[2]:
+        odds = weights[icons.index(choices[0])] ** 3
+
+    elif "⭐" in choices: 
+        odds = ( weights[icons.index("⭐")] ** choices.count("⭐") ) * 10
+
+    if odds:
+        value = int(bet / odds)
+        won = True
+    else:
+        value = 0
+        won = False
+        
+    thresholds = [
+        (30_000, 50_000),
+        (2500, 2500),
+        (250, 500),
+        (30, 50)
+    ]
+    for threshold, multiple in thresholds:
+        if value > threshold:
+            value = round(value / multiple) * multiple
+            break
+        
+    if won:
+        output_str = f"# {choices[0]} | {choices[1]} | {choices[2]}\n\n### You won {value}"
+    else:
+        output_str = f"# {choices[0]} | {choices[1]} | {choices[2]}\n\n### You lost {bet}"
+
+    data[str(user_id)] = (balance + value)
+    with open("data/balance.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+    await interaction.response.send_message(output_str)
+
 
 bot.run(token)
