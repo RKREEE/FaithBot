@@ -1,4 +1,4 @@
-import discord, time, json, random, requests
+import discord, time, json, random, requests, numpy
 from discord.ext import commands
 
 
