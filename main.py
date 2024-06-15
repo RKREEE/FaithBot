@@ -336,7 +336,7 @@ async def bal(interaction: discord.Interaction):
 @bot.tree.command(name="slots", description="play slot machine omg")
 async def slots(interaction: discord.Interaction, bet: int = 1):
     if bet <= 0:
-        interaction.response.send_message("you cant just play for fun, bet something!")
+        await interaction.response.send_message("you cant just play for fun, bet something!")
         return
     
     user_id = interaction.user.id
@@ -349,7 +349,7 @@ async def slots(interaction: discord.Interaction, bet: int = 1):
         balance = 1000 - bet
 
     if balance < 0:
-        interaction.resonse.send_message("u dont have this sorry money")
+        await interaction.resonse.send_message("u dont have this sorry money")
         return
 
     choices = []
