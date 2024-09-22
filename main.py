@@ -52,7 +52,7 @@ async def info(interaction: discord.Interaction):
     elif bot.owner_ids:
         owners += "Owners: "
         for id in bot.owner_ids:
-            user = bot.get_user(bot.owner_ids)
+            user = bot.get_user(id)
             owners += user.mention + " "
             
     e = discord.Embed(title="Information about me",
